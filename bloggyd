@@ -1,0 +1,108 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Use Tomcat 9 as base image
+FROM tomcat:9.0
+
+# Copy your built WAR into Tomcat’s webapps folder
+COPY target/libraryregistration.war /usr/local/tomcat/webapps/ROOT.war
+
+# Start Tomcat
+CMD ["catalina.sh", "run"]
+
+
+docker build -t flightimage .
+docker run --name flightcontainer -d -p 8080:8080 fightimage
+
+docker ps
+docker stop,rm flightcontainer
+push..
+docker login
+docker tag flightimage amulya13g/flightimage:latest
+docker push amulya13g/flightimage:latest
+
+docker pull nginx
+docker run --name mynginx -d -p 8080:8080 nginx 
+
+
+#order
+
+# Stage 1: Build with Maven
+FROM maven:3.9.2-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Stage 2: Run WAR in Tomcat
+FROM tomcat:10.1.13-jdk17
+RUN rm -rf /usr/local/tomcat/webapps/*
+COPY --from=build /app/target/OFOS.war /usr/local/tomcat/webapps/ROOT.war
+EXPOSE 8080
+CMD ["catalina.sh", "run"]
+
+docker build -t ofos-app:1.0 .
+docker run -d -p 8080:8080 --name ofos-container ofos-app:1.0
+
+docker-compose.yml
+
+version: '3.8'
+
+services:
+  ofos-app:
+    image: amulya13g/ofos-app:1.0  # Your Docker Hub image
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/ofos_db
+      - SPRING_DATASOURCE_USERNAME=ofos_user
+      - SPRING_DATASOURCE_PASSWORD=ofos_pass
+
+  mysql-db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: ofos_db
+      MYSQL_USER: ofos_user
+      MYSQL_PASSWORD: ofos_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
+
+docker-compose up -d
+docker-compose ps
+docker-compose build ofos-app
+docker-compose up -d
+docker-compose up -d --build
+docker-compose stop
+ start,down
+
+
+1.	docker-compose.yml [5M]
+Run both containers [2M]
+2.	docker-compose up --build
+3.	Rebuild after changes [3M]
+4.	docker-compose up --build --force-recreate
+5.	Verify persistence [3M]
+Insert data → restart containers → data still available (volume ensures persistence).
+6.	Stop all containers but keep data [2M]
+docker-compose down
+
